@@ -1,0 +1,34 @@
+:root {
+  --background: #ffffff;
+  --foreground: #1c1c1f;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  font-family: "Pretendard", "Inter", "Roboto", "Noto Sans KR", -apple-system,
+    BlinkMacSystemFont, system-ui, "Helvetica Neue", "Segoe UI",
+    "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  line-height: 1.6;
+  color: #ffffff;
+  background-color: #1c1c1f;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  /* 가로 스크롤 방지 */
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: border-color 0.25s;
+}

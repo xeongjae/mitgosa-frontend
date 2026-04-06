@@ -1,0 +1,83 @@
+@use "../../../styles/breakpoints" as *;
+
+.headerLayout {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 56px;
+  font-weight: 700;
+  background-color: #4270d3;
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 1040px;
+  height: 56px;
+
+  @include mobile {
+    width: 100%;
+    padding: 0 16px;
+  }
+}
+
+.headerContainerWithCenter {
+  gap: 16px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  font-family: "Noto Sans KR", "Pretendard", sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: #ffffff;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.headerCenter {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  @include mobile {
+    display: none;
+  }
+}
+
+.headerRight {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  width: 210px;
+  flex-shrink: 0;
+  height: 56px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #b3cdff;
+}
+
+.headerRightItem {
+  display: inline-flex;
+  align-items: center;
+  height: 56px;
+  background: none;
+  border: none;
+  color: #b3cdff;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  border-radius: 0;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  transition: color 0.05s ease;
+
+  &:hover {
+    color: #ffffff;
+  }
+}
