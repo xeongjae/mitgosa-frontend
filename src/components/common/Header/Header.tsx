@@ -1,7 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import ResultSearchBar from "@/components/result/ResultSearchBar/ResultSearchBar";
 
 import styles from "./Header.module.scss";
 
@@ -9,11 +10,9 @@ const PORTFOLIO_URL = "https://seongjae-portfolio.netlify.app/";
 const FEEDBACK_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSdRTOL98fGuEgfmmCPufO3U7GTrDn60__gyAcUbQoNoGa_LIA/viewform?usp=dialog";
 
-type HeaderProps = {
-  centerContent?: ReactNode | null;
-};
-
-export default function Header({ centerContent = null }: HeaderProps) {
+export default function Header() {
+  const pathname = usePathname();
+  const centerContent = pathname === "/result" ? <ResultSearchBar /> : null;
   const handleShareLink = () => {
     const currentUrl = window.location.href;
     navigator.clipboard

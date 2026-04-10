@@ -5,7 +5,6 @@
   background-color: #1c1c1f;
   color: #7b7a8e;
   margin-bottom: 68px;
-  font-family: "Inter", sans-serif;
 }
 
 .footerContent {
@@ -27,58 +26,6 @@
   }
 }
 
-.footerSections {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 48px;
-  margin-bottom: 48px;
-
-  @include small {
-    flex-direction: column;
-    gap: 32px;
-  }
-}
-
-.footerSection {
-  min-width: 180px;
-
-  h4 {
-    color: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 16px;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-
-    li {
-      margin-bottom: 8px;
-
-      a {
-        color: #7b7a8e;
-        text-decoration: none;
-        font-size: 13px;
-        transition: color 0.2s;
-
-        &:hover {
-          color: #fff;
-        }
-      }
-    }
-  }
-}
-
-.footerBottom {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px 0;
-  border-top: 1px solid #424254;
-}
-
 .companyInfo {
   margin-bottom: 16px;
 
@@ -86,12 +33,6 @@
     font-size: 12px;
     line-height: 1.6;
   }
-}
-
-.copyright {
-  font-size: 12px;
-  line-height: 1.6;
-  margin-top: 12px;
 }
 
 .quickLinks {
@@ -114,7 +55,6 @@
     text-decoration: none;
     font-size: 12px;
     font-weight: 500;
-    font-family: inherit;
     border: none;
     border-radius: 4px;
     cursor: pointer;

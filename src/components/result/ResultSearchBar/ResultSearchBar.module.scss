@@ -1,0 +1,220 @@
+@use '../../../styles/breakpoints' as *;
+
+.resultPageSearchFormContainer {
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+
+  @include mobile {
+    max-width: 100%;
+  }
+}
+
+.searchForm {
+  display: flex;
+  height: 32px;
+  align-items: stretch;
+  background-color: #fff;
+  border-radius: 2px;
+  border: none;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--loading-progress, 0%);
+    background: rgb(49, 49, 60, 0.2);
+    transition: width 0.1s ease-out;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: inherit;
+    opacity: 0;
+    transform: translateZ(0);
+  }
+
+  &.loading {
+    &::before {
+      opacity: 1;
+    }
+
+    & > * {
+      position: relative;
+      z-index: 2;
+    }
+  }
+}
+
+.regionSelector {
+  display: flex;
+  align-items: stretch;
+  position: relative;
+  z-index: 10;
+}
+
+.regionInner {
+  display: flex;
+  align-items: stretch;
+  text-align: left;
+
+  & > div {
+    display: flex;
+  }
+}
+
+.urlInput {
+  color: #000000;
+  height: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: 12px;
+  background-color: transparent;
+  border: none;
+  font-size: 14px;
+  position: relative;
+  z-index: 2;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: #9e9eb1;
+  }
+}
+
+.platformButton {
+  position: relative;
+  width: 110px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: rgb(236, 242, 255);
+  border-radius: 4px 0 0 4px;
+  color: #4270d3;
+  border: none;
+  border-right: 1px solid rgb(66, 112, 211, 0.8);
+  cursor: pointer;
+
+  @include mobile {
+    width: 100px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    top: 52%;
+    height: 0;
+    width: 0;
+    margin-top: -2px;
+    border-top: 5px solid #4270d3;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+  }
+
+  &.open::after {
+    transform: rotate(180deg);
+  }
+}
+
+.inputContainer {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.platformModal {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 110px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+
+  @include mobile {
+    min-width: 100px;
+  }
+}
+
+.platformModalContent {
+  padding: 0;
+}
+
+.platformList {
+  display: flex;
+  flex-direction: column;
+}
+
+.platformItem {
+  padding: 8px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: #ecf2ff;
+  }
+
+  &.unsupported {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: transparent;
+    }
+
+    span {
+      color: #666 !important;
+      text-decoration: line-through;
+    }
+  }
+
+  span {
+    color: #4270d3;
+    font-size: 13px;
+    font-weight: 500;
+  }
+}
+
+.submitButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 68px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.goText {
+  font-family: "Inter", sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  color: #4270d3;
+}

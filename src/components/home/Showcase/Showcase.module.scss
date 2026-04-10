@@ -1,0 +1,214 @@
+@use "../../../styles/breakpoints" as *;
+
+.featuresSection {
+  width: 1040px;
+  padding-top: 4px;
+  margin-bottom: 200px;
+
+  @include mobile {
+    width: 100%;
+  }
+}
+
+.features {
+  display: flex;
+  justify-content: space-between;
+
+  @include mobile {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+.featureItem1 {
+  width: 49.8%;
+  height: 550px;
+  background-color: #31313c;
+  border-radius: 4px;
+  overflow: hidden;
+
+  @include mobile {
+    width: 100%;
+  }
+}
+
+.featureItem1Title {
+  width: 100%;
+  height: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  padding: 14px 0 16px 12px;
+  border-bottom: 1px solid #1c1c1f;
+}
+
+.featureItem1Content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 500px;
+  padding: 0;
+  list-style: none;
+}
+
+.platformLink {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  padding-left: 16px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.featureItem1ContentItem {
+  display: flex;
+  align-items: center;
+  height: 20%;
+  font-weight: 700;
+  color: #ffffff;
+  transition: background-color 0.1s ease;
+
+  &.border {
+    border-bottom: 1px solid #1c1c1f;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: #282830;
+  }
+
+  &.notSupported {
+    opacity: 0.3;
+
+    &:hover {
+      cursor: default;
+      background-color: #31313c;
+    }
+  }
+
+  .shopIcon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+
+    .platformName {
+      width: fit-content;
+      font-size: 14px;
+      font-weight: 700;
+      transition: color 0.1s ease, text-decoration 0.1s ease;
+      cursor: pointer;
+
+      &:hover {
+        color: #4270d3;
+        text-decoration: underline;
+        text-decoration-color: #4270d3;
+      }
+    }
+
+    .shopDescription {
+      font-size: 12px;
+      font-weight: 400;
+      color: #9e9eb1;
+    }
+  }
+
+  &.notSupported {
+    .platformName {
+      cursor: default;
+
+      &:hover {
+        color: #ffffff;
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+.toolSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 49.8%;
+  background-color: #31313c;
+  border-radius: 4px;
+  color: #7b7a8e;
+
+  @include mobile {
+    display: none;
+  }
+
+  h3 {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 0;
+    margin-top: 20px;
+  }
+
+  .apiSubtitle {
+    color: #9e9eb1;
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+
+  &:hover .toolImage {
+    animation: spin 4s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.toolImage {
+  margin-top: 120px;
+  width: 80px;
+  height: 80px;
+  transition: transform 0.3s ease;
+}
+
+.apiLinks {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+
+  @include small {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .apiLink {
+    padding: 8px 16px;
+    background-color: transparent;
+    color: #4270d3;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #4270d3;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #5383e8;
+      color: #fff;
+    }
+  }
+}
