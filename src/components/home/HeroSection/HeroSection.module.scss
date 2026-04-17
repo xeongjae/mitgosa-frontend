@@ -1,46 +1,58 @@
 @use "../../../styles/breakpoints" as *;
 
-.heroSection {
+.section {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   width: 1040px;
-  height: 300px;
-  margin-top: 80px;
 
   @include mobile {
     width: 100%;
   }
 }
 
-.mainLogoImage {
-  width: 300px;
-  height: 120px;
-  margin-bottom: 32px;
-}
-
-
-.searchFormContainer {
-  position: relative;
-  margin: 0 auto;
-  width: 100%;
-  max-width: 800px;
-
+.logo {
+  width: auto;
+  max-width: 100%;
+  margin-bottom: 60px;
+  margin-top: 100px;
   @include mobile {
-    padding: 0 16px;
+    margin-top: 60px;
   }
 }
 
-.searchForm {
+.logoDesktop {
+  height: 56px;
+
+  @include mobile {
+    display: none;
+  }
+}
+
+.logoMobile {
+  display: none;
+  height: 180px;
+
+  @include mobile {
+    display: block;
+  }
+}
+
+.shell {
+  position: relative;
+  width: 90%;
+  max-width: 800px;
+}
+
+.form {
+  position: relative;
   display: flex;
+  width: 100%;
   height: 60px;
   align-items: stretch;
   background-color: #31313c;
   border-radius: 30px;
-  margin: 0;
   border: 1.5px solid #424254;
-  position: relative;
 
   &::before {
     content: "";
@@ -87,7 +99,7 @@
   }
 }
 
-.regionSelector {
+.picker {
   display: flex;
   align-items: stretch;
   position: relative;
@@ -103,7 +115,7 @@
   }
 }
 
-.regionInner {
+.row {
   display: flex;
   align-items: stretch;
   text-align: left;
@@ -113,7 +125,7 @@
   }
 }
 
-.platformButton {
+.trigger {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -158,8 +170,7 @@
   }
 }
 
-
-.inputContainer {
+.field {
   position: relative;
   flex: 1;
   display: flex;
@@ -167,19 +178,7 @@
   justify-content: center;
 }
 
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
-.inputLabel {
+.tag {
   display: flex;
   padding-left: 12px;
   font-size: 12px;
@@ -187,7 +186,7 @@
   color: #ffffff;
 }
 
-.urlInput {
+.input {
   height: 20px;
   width: 100%;
   box-sizing: border-box;
@@ -208,72 +207,54 @@
   }
 }
 
-.submitButton {
+.submit {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 80px;
-  padding: 0 12px;
+  padding-right: 28px;
   border: none;
   background: none;
   color: #4270d3;
   cursor: pointer;
 
   &:hover {
-    color: #5383e8;
+    color: #5f91fe;
   }
 }
 
-.goText {
+.go {
   font-family: var(--font-inter), sans-serif;
-  font-weight: 900;
-  font-size: 26px;
-  letter-spacing: -0.5px;
+  font-weight: 800;
+  font-size: 32px;
+  padding-left: 10px;
 }
 
-.messageContainer {
-  min-height: 60px;
+.messages {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 16px;
-  margin-bottom: 16px;
+  max-width: 600px;
+  min-height: 100px;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
   transition: all 0.3s ease;
 }
 
-.messagePlaceholder {
-  height: 28px;
-  width: 100%;
-  opacity: 0;
-}
-
-.loadingMessage {
-  margin: 0;
-  text-align: center;
+.pending {
   color: #5383e8;
-  font-size: 16px;
-  font-weight: 500;
-  animation: pulse 3s ease-in-out infinite;
+  animation: pulse 2s ease-in-out infinite;
 
-  .progressNumber {
+  .pct {
     display: inline-block;
     width: 34px;
+    padding-left: 10px;
     text-align: right;
   }
 }
 
-.errorMessage {
-  margin: 0;
-  text-align: center;
+.error {
   color: #e74c3c;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 12px 16px;
-  background-color: rgba(231, 76, 60, 0.1);
-  border-radius: 8px;
-  border: 1px solid rgba(231, 76, 60, 0.2);
-  max-width: 600px;
-  word-wrap: break-word;
 }
 
 @keyframes pulse {
@@ -284,11 +265,11 @@
   }
 
   50% {
-    opacity: 0.8;
+    opacity: 0.7;
   }
 }
 
-.platformModal {
+.modal {
   position: absolute;
   top: 66px;
   left: 0;
@@ -303,7 +284,7 @@
 
   @include mobile {
     min-width: 140px;
-    left: 16px;
+    left: 0;
   }
 }
 
@@ -319,17 +300,17 @@
   }
 }
 
-.platformModalContent {
+.modalIn {
   padding: 8px;
 }
 
-.platformList {
+.options {
   display: flex;
   flex-direction: column;
   gap: 0px;
 }
 
-.platformItem {
+.option {
   display: flex;
   align-items: center;
   padding: 12px 22px;
@@ -341,7 +322,7 @@
     background-color: #282830;
   }
 
-  &.unsupported {
+  &.notSupported {
     opacity: 0.5;
     cursor: not-allowed;
 

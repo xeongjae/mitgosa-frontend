@@ -14,7 +14,7 @@ export default function Header() {
   const pathname = usePathname();
   const centerContent = pathname === "/result" ? <ResultSearchBar /> : null;
   const handleShareLink = () => {
-    const currentUrl = window.location.href;
+    const currentUrl = `${window.location.origin}${pathname}`;
     navigator.clipboard
       .writeText(currentUrl)
       .then(() => {
@@ -31,7 +31,7 @@ export default function Header() {
         className={`${styles.headerContainer}${centerContent ? ` ${styles.headerContainerWithCenter}` : ""}`}
       >
         <Link className={styles.logo} href="/">
-          MITGOSA
+          MGS
         </Link>
         {centerContent ? (
           <div className={styles.headerCenter}>{centerContent}</div>

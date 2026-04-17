@@ -21,7 +21,7 @@ interface AnalysisData {
   recommendation: string;
 }
 
-interface AnalysisResultData {
+export interface AnalysisResultData {
   success: boolean;
   error?: string;
   message?: string;

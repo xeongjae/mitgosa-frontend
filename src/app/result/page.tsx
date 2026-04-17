@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import AnalysisResult from "@/components/result/AnalysisResult/AnalysisResult";
+import AnalysisResult, { AnalysisResultData } from "@/components/result/AnalysisResult/AnalysisResult";
 import ResultSearchBar from "@/components/result/ResultSearchBar/ResultSearchBar";
 import styles from "./result.module.scss";
 
 export default function ResultPage() {
   const router = useRouter();
 
-  const [result] = useState(() => {
+  const [result] = useState<AnalysisResultData | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = sessionStorage.getItem("analysisData");
     if (!raw) return null;
