@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import styles from "./HeroSection.module.scss";
+import { useFormLoading } from "@/hooks/useFormLoading";
 
 import desktopLogo from "@/images/static/mainlogo.png";
 import mobileLogo from "@/images/static/mobilemain.png";
@@ -22,14 +23,14 @@ export default function HeroSection() {
   const [platform, setPlatform] = useState("musinsa");
   const [showPlatformModal, setShowPlatformModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
 
   const modalRef = useRef<HTMLDivElement>(null);
   const platformButtonRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const loadingCleanupRef = useRef<(() => void) | null>(null);
+
+  // 로딩 막대 (useFormLoading)
+  const formLoading = useFormLoading(formRef, styles.loading);
 
   const router = useRouter();
 
@@ -68,10 +69,9 @@ export default function HeroSection() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showPlatformModal]);
-  //////////////////////////////////////////////////////////////
 
   // 제출 관련 로직
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!url.trim()) {
@@ -79,114 +79,39 @@ export default function HeroSection() {
       return;
     }
 
-    setLoading(true);
-    setLoadingProgress(0);
     setError(null);
+    formLoading.start();
 
     let hasError = false;
 
-    if (formRef.current) {
-      formRef.current.style.setProperty("--loading-progress", "0%");
-      formRef.current.classList.add(styles.loading);
-
-      setTimeout(() => {
-        const cleanup = createLoadingBar(15000);
-        loadingCleanupRef.current = cleanup;
-      }, 50);
-    }
-
     try {
-      const endpoint = "/api/analyze";
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
 
-      const response = await fetch(
-        endpoint,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url }),
-        }
-      );
-
-      const contentType = response.headers.get("content-type") || "";
-      const data = contentType.includes("application/json")
-        ? await response.json()
-        : await response.text();
+      const data = await response.json();
 
       if (response.ok) {
-        loadingCleanupRef.current?.();
-        loadingCleanupRef.current = null;
-
-        if (formRef.current) {
-          formRef.current.style.setProperty("--loading-progress", "100%");
-          setLoadingProgress(100);
-
-          setTimeout(() => {
-            formRef.current?.classList.remove(styles.loading);
-            formRef.current?.style.removeProperty("--loading-progress");
-            sessionStorage.setItem("analysisData", JSON.stringify(data));
-            router.push("/result");
-          }, 600);
-        } else {
-          sessionStorage.setItem("analysisData", JSON.stringify(data));
-          router.push("/result");
-        }
+        sessionStorage.setItem("analysisData", JSON.stringify(data));
+        formLoading.finishSuccess(() => router.push("/result"));
       } else {
         hasError = true;
-        if (typeof data === "string") {
-          setError("분석 중 오류가 발생했습니다.");
-        } else {
-          setError(data.error || "분석 중 오류가 발생했습니다.");
-        }
+        setError(
+          (data as { error?: string }).error ?? "분석 중 오류가 발생했습니다."
+        );
       }
-    } catch (err) {
-      console.error("분석 요청 에러:", err);
+    } catch {
       hasError = true;
       setError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
-      if (loadingCleanupRef.current) {
-        loadingCleanupRef.current();
-        loadingCleanupRef.current = null;
-      }
-
       if (hasError) {
-        formRef.current?.classList.remove(styles.loading);
-        formRef.current?.style.removeProperty("--loading-progress");
-        setLoading(false);
-        setLoadingProgress(0);
+        formLoading.resetAfterError();
       }
     }
   };
-  //////////////////////////////////////////////////////////////
 
-  // 로딩 바 관련 로직
-  const createLoadingBar = (duration = 10000) => {
-    const startTime = Date.now();
-    let animationId: number;
-
-    function updateLoadingBar() {
-      const timePassed = Date.now() - startTime;
-      const progress = Math.min((timePassed / duration) * 100, 100);
-
-      formRef.current?.style.setProperty("--loading-progress", `${progress}%`);
-      setLoadingProgress(Math.round(progress));
-
-      if (progress < 100) {
-        animationId = requestAnimationFrame(updateLoadingBar);
-      }
-    }
-
-    animationId = requestAnimationFrame(updateLoadingBar);
-    return () => cancelAnimationFrame(animationId);
-  };
-
-  useEffect(() => {
-    return () => {
-      loadingCleanupRef.current?.();
-    };
-  }, []);
-  //////////////////////////////////////////////////////////////
-
-  // 에러 3초 후 제거
   useEffect(() => {
     if (!error) return;
     const id = window.setTimeout(() => setError(null), 3000);
@@ -276,12 +201,12 @@ export default function HeroSection() {
       </div>
 
       <div className={styles.messages}>
-        {loading && (
+        {formLoading.loading && (
           <div className={styles.pending}>
-            {loadingProgress < 100 ? (
+            {formLoading.progress < 100 ? (
               <>
                 전체 리뷰 분석 중입니다
-                <span className={styles.pct}>{loadingProgress}%</span>
+                <span className={styles.pct}>{formLoading.progress}%</span>
               </>
             ) : (
               "잠시만 기다려주세요"

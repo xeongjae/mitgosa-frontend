@@ -60,7 +60,7 @@ src/
 ## 핵심 데이터 흐름
 
 1. **분석 요청**: 클라이언트가 `POST /api/analyze`, JSON body `{ url: string }` (예: `HeroSection.tsx`).
-2. **프록시**: `src/app/api/analyze/route.ts`가 `process.env.NEXT_PUBLIC_API_URL`(없으면 `http://localhost:8000`)의 `POST /api/analyze`로 동일 body를 전달하고, 백엔드 status·JSON을 그대로 반환한다.
+2. **프록시**: `src/app/api/analyze/route.ts`가 `process.env.BASE_URL`(없으면 `http://localhost:8000`)의 `POST /api/analyze`로 동일 body를 전달하고, 백엔드 status·JSON을 그대로 반환한다.
 3. **결과 화면**: 성공 시 응답 JSON을 `sessionStorage.setItem("analysisData", …)` 후 `router.push("/result")`.
 4. **`/result`**: `sessionStorage.getItem("analysisData")`로 초기 state를 채우고, 없으면 `router.replace("/")`. 백엔드 응답 스키마는 `AnalysisResultData`(`success`, `error`, `data`, `product` 등)와 일치해야 한다.
 
@@ -72,7 +72,7 @@ src/
 
 | 변수 | 용도 |
 |------|------|
-| `NEXT_PUBLIC_API_URL` | 백엔드 베이스 URL (미설정 시 로컬 `http://localhost:8000`) |
+| `BASE_URL` | 백엔드 베이스 URL (미설정 시 로컬 `http://localhost:8000`) |
 
 로컬 개발 시 백엔드를 띄우지 않으면 프록시가 502를 반환할 수 있다.
 
