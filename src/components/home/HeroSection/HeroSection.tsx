@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import styles from "./HeroSection.module.scss";
-import mainLogoImage from "@/images/static/mgslogo.png";
+import { useFormLoading } from "@/hooks/useFormLoading";
+import {
+  useAnalysisResultStore,
+  type AnalysisResultPayload,
+} from "@/stores/analysisResultStore";
+
+import desktopLogo from "@/images/static/mainlogo.png";
+import mobileLogo from "@/images/static/mobilemain.png";
 
 const PLATFORMS = [
   { value: "musinsa", label: "무신사", supported: true },
@@ -20,45 +27,39 @@ export default function HeroSection() {
   const [platform, setPlatform] = useState("musinsa");
   const [showPlatformModal, setShowPlatformModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
 
   const modalRef = useRef<HTMLDivElement>(null);
+  const platformButtonRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const loadingCleanupRef = useRef<(() => void) | null>(null);
+
+  // 로딩 막대 (useFormLoading)
+  const formLoading = useFormLoading(formRef, styles.loading);
 
   const router = useRouter();
+
+  // 플랫폼 버튼 관련 로직
   const selectedPlatform = PLATFORMS.find((p) => p.value === platform);
 
-  const createLoadingBar = (duration = 10000) => {
-    const startTime = Date.now();
-    let animationId: number;
+  const handlePlatformButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowPlatformModal(!showPlatformModal);
+  };
 
-    function updateLoadingBar() {
-      const timePassed = Date.now() - startTime;
-      const progress = Math.min((timePassed / duration) * 100, 100);
-
-      formRef.current?.style.setProperty("--loading-progress", `${progress}%`);
-      setLoadingProgress(Math.round(progress));
-
-      if (progress < 100) {
-        animationId = requestAnimationFrame(updateLoadingBar);
-      }
-    }
-
-    animationId = requestAnimationFrame(updateLoadingBar);
-    return () => cancelAnimationFrame(animationId);
+  const handlePlatformSelect = (platformValue: string, isSupported: boolean) => {
+    if (!isSupported) return;
+    setPlatform(platformValue);
+    setShowPlatformModal(false);
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (
         modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
+        !modalRef.current.contains(e.target as Node)
       ) {
-        const platformButton = document.getElementById("platformSelect");
-        if (platformButton && !platformButton.contains(event.target as Node)) {
+        const trigger = platformButtonRef.current;
+        if (trigger && !trigger.contains(e.target as Node)) {
           setShowPlatformModal(false);
         }
       }
@@ -73,24 +74,8 @@ export default function HeroSection() {
     };
   }, [showPlatformModal]);
 
-  useEffect(() => {
-    return () => {
-      loadingCleanupRef.current?.();
-    };
-  }, []);
-
-  const handlePlatformSelect = (platformValue: string, isSupported: boolean) => {
-    if (!isSupported) return;
-    setPlatform(platformValue);
-    setShowPlatformModal(false);
-  };
-
-  const handlePlatformButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowPlatformModal(!showPlatformModal);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  // 제출 관련 로직
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!url.trim()) {
@@ -98,177 +83,144 @@ export default function HeroSection() {
       return;
     }
 
-    setLoading(true);
-    setLoadingProgress(0);
     setError(null);
+    formLoading.start();
 
     let hasError = false;
 
-    if (formRef.current) {
-      formRef.current.style.setProperty("--loading-progress", "0%");
-      formRef.current.classList.add(styles.loading);
-
-      setTimeout(() => {
-        const cleanup = createLoadingBar(15000);
-        loadingCleanupRef.current = cleanup;
-      }, 50);
-    }
-
     try {
-      const endpoint = "/api/analyze";
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
 
-      const response = await fetch(
-        endpoint,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url }),
-        }
-      );
-
-      const contentType = response.headers.get("content-type") || "";
-      const data = contentType.includes("application/json")
-        ? await response.json()
-        : await response.text();
+      const data = await response.json();
 
       if (response.ok) {
-        loadingCleanupRef.current?.();
-        loadingCleanupRef.current = null;
-
-        if (formRef.current) {
-          formRef.current.style.setProperty("--loading-progress", "100%");
-          setLoadingProgress(100);
-
-          setTimeout(() => {
-            formRef.current?.classList.remove(styles.loading);
-            formRef.current?.style.removeProperty("--loading-progress");
-            sessionStorage.setItem("analysisData", JSON.stringify(data));
-            router.push("/result");
-          }, 600);
-        } else {
-          sessionStorage.setItem("analysisData", JSON.stringify(data));
-          router.push("/result");
-        }
+        useAnalysisResultStore
+          .getState()
+          .setResult(data as AnalysisResultPayload);
+        formLoading.finishSuccess(() => router.push("/result"));
       } else {
         hasError = true;
-        if (typeof data === "string") {
-          setError("분석 중 오류가 발생했습니다.");
-        } else {
-          setError(data.error || "분석 중 오류가 발생했습니다.");
-        }
+        setError(
+          (data as { error?: string }).error ?? "분석 중 오류가 발생했습니다."
+        );
       }
-    } catch (err) {
-      console.error("분석 요청 에러:", err);
+    } catch {
       hasError = true;
       setError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
-      if (loadingCleanupRef.current) {
-        loadingCleanupRef.current();
-        loadingCleanupRef.current = null;
-      }
-
       if (hasError) {
-        formRef.current?.classList.remove(styles.loading);
-        formRef.current?.style.removeProperty("--loading-progress");
-        setLoading(false);
-        setLoadingProgress(0);
+        formLoading.resetAfterError();
       }
     }
   };
 
+  useEffect(() => {
+    if (!error) return;
+    const id = window.setTimeout(() => setError(null), 3000);
+    return () => window.clearTimeout(id);
+  }, [error]);
+
   return (
-    <div className={styles.heroSection}>
-        <Image src={mainLogoImage} alt="main logo" className={styles.mainLogoImage} />
-      <div className={styles.searchFormContainer}>
-        <div>
-          <form
-            className={styles.searchForm}
-            onSubmit={handleSubmit}
-            ref={formRef}
+    <section className={styles.section}>
+      <Image
+        src={desktopLogo}
+        alt="MITGOSA"
+        className={`${styles.logo} ${styles.logoDesktop}`}
+        priority
+      />
+      <Image
+        src={mobileLogo}
+        alt="MITGOSA"
+        className={`${styles.logo} ${styles.logoMobile}`}
+        priority
+      />
+      <div className={styles.shell}>
+        <form
+          className={styles.form}
+          onSubmit={handleSubmit}
+          ref={formRef}
+        >
+          <div className={styles.picker}>
+            <div className={styles.row}>
+              <div>
+                <button
+                  ref={platformButtonRef}
+                  type="button"
+                  aria-haspopup="listbox"
+                  aria-expanded={showPlatformModal}
+                  className={`${styles.trigger} ${showPlatformModal ? styles.open : ""}`}
+                  onClick={handlePlatformButtonClick}
+                >
+                  <span>platform</span>
+                  <span>{selectedPlatform ? selectedPlatform.label : "선택"}</span>
+                </button>
+                <input type="hidden" value={platform} name="platform" />
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <span className={styles.tag}>search</span>
+            <input
+              id="productUrl"
+              autoComplete="off"
+              className={styles.input}
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="상품 링크를 입력해주세요"
+              name="productUrl"
+              ref={inputRef}
+            />
+          </div>
+
+          <button
+            type="submit"
+            className={styles.submit}
+            aria-label="상품 검색"
           >
-            <div className={styles.regionSelector}>
-              <div className={styles.regionInner}>
-                <div>
-                  <label htmlFor="platformSelect" className={styles.srOnly}>
-                    platformSelect
-                  </label>
-                  <button
-                    id="platformSelect"
-                    type="button"
-                    className={`${styles.platformButton} ${showPlatformModal ? styles.open : ""}`}
-                    onClick={handlePlatformButtonClick}
+            <span className={styles.go}>.GO</span>
+          </button>
+        </form>
+
+        {showPlatformModal && (
+          <div className={styles.modal} ref={modalRef}>
+            <div className={styles.modalIn}>
+              <div className={styles.options}>
+                {PLATFORMS.map((p) => (
+                  <div
+                    key={p.value}
+                    className={`${styles.option} ${!p.supported ? styles.notSupported : ""}`}
+                    onClick={() => handlePlatformSelect(p.value, p.supported)}
                   >
-                    <span>platform</span>
-                    <span>{selectedPlatform ? selectedPlatform.label : "선택"}</span>
-                  </button>
-                  <input type="hidden" value={platform} name="platform" />
-                </div>
+                    <span>{p.label}</span>
+                  </div>
+                ))}
               </div>
             </div>
-
-            <div className={styles.inputContainer}>
-              <label htmlFor="productUrl" className={styles.srOnly}>
-                상품 URL 검색
-              </label>
-              <span className={styles.inputLabel}>search</span>
-              <input
-                id="productUrl"
-                autoComplete="off"
-                className={styles.urlInput}
-                type="text"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="상품 링크를 입력해주세요"
-                name="productUrl"
-                ref={inputRef}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className={styles.submitButton}
-              aria-label="상품 검색"
-            >
-              <span className={styles.goText}>.GO</span>
-            </button>
-          </form>
-
-          {showPlatformModal && (
-            <div className={styles.platformModal} ref={modalRef}>
-              <div className={styles.platformModalContent}>
-                <div className={styles.platformList}>
-                  {PLATFORMS.map((p) => (
-                    <div
-                      key={p.value}
-                      className={`${styles.platformItem} ${!p.supported ? styles.unsupported : ""}`}
-                      onClick={() => handlePlatformSelect(p.value, p.supported)}
-                    >
-                      <span>{p.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
-      <div className={styles.messageContainer}>
-        {loading && (
-          <div className={styles.loadingMessage}>
-            {loadingProgress < 100 ? (
+      <div className={styles.messages}>
+        {formLoading.loading && (
+          <div className={styles.pending}>
+            {formLoading.progress < 100 ? (
               <>
-                AI가 리뷰를 분석 중입니다...
-                <span className={styles.progressNumber}>{loadingProgress}%</span>
+                전체 리뷰 분석 중입니다
+                <span className={styles.pct}>{formLoading.progress}%</span>
               </>
             ) : (
-              "잠시만 기다려주세요..."
+              "잠시만 기다려주세요"
             )}
           </div>
         )}
-        {error && <div className={styles.errorMessage}>{error}</div>}
-        {!loading && !error && <div className={styles.messagePlaceholder} />}
+        {error && <div className={styles.error}>{error}</div>}
       </div>
-    </div>
+    </section>
   );
 }

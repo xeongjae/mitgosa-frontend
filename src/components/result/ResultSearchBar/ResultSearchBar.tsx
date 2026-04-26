@@ -3,6 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./ResultSearchBar.module.scss";
+import {
+  useAnalysisResultStore,
+  type AnalysisResultPayload,
+} from "@/stores/analysisResultStore";
 
 const platforms = [
   { value: "musinsa", label: "무신사", supported: true },
@@ -26,13 +30,13 @@ export default function ResultSearchBar() {
 
   const createLoadingBar = (duration = 10000) => {
     const form = formRef.current;
-    if (!form) return () => {};
+    if (!form) return () => { };
     const startTime = Date.now();
     let animationId: number;
 
     function update() {
       const progress = Math.min(((Date.now() - startTime) / duration) * 100, 100);
-      form!.style.setProperty("--loading-progress", `${progress}%`);
+      form!.style.setProperty("--loadingProgress", `${progress}%`);
       if (progress < 100) animationId = requestAnimationFrame(update);
     }
 
@@ -70,13 +74,13 @@ export default function ResultSearchBar() {
     setShowPlatformModal(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!url.trim()) return;
 
     const form = formRef.current;
     if (form) {
-      form.style.setProperty("--loading-progress", "0%");
+      form.style.setProperty("--loadingProgress", "0%");
       form.classList.add(styles.loading);
       setTimeout(() => {
         loadingCleanupRef.current = createLoadingBar(5000);
@@ -99,16 +103,19 @@ export default function ResultSearchBar() {
         loadingCleanupRef.current?.();
         loadingCleanupRef.current = null;
 
+        if (typeof data === "object" && data !== null) {
+          useAnalysisResultStore
+            .getState()
+            .setResult(data as AnalysisResultPayload);
+        }
         if (form) {
-          form.style.setProperty("--loading-progress", "100%");
+          form.style.setProperty("--loadingProgress", "100%");
           setTimeout(() => {
             form.classList.remove(styles.loading);
-            form.style.removeProperty("--loading-progress");
-            sessionStorage.setItem("analysisData", JSON.stringify(data));
+            form.style.removeProperty("--loadingProgress");
             router.push("/result");
           }, 600);
         } else {
-          sessionStorage.setItem("analysisData", JSON.stringify(data));
           router.push("/result");
         }
       }
@@ -119,7 +126,7 @@ export default function ResultSearchBar() {
       loadingCleanupRef.current = null;
       if (formRef.current) {
         formRef.current.classList.remove(styles.loading);
-        formRef.current.style.removeProperty("--loading-progress");
+        formRef.current.style.removeProperty("--loadingProgress");
       }
     }
   };

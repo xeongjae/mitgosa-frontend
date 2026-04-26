@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import styles from "./Footer.module.scss";
 
@@ -9,8 +10,9 @@ const FEEDBACK_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSdRTOL98fGuEgfmmCPufO3U7GTrDn60__gyAcUbQoNoGa_LIA/viewform?usp=dialog";
 
 function Footer() {
+  const pathname = usePathname();
   const handleShareLink = () => {
-    const currentUrl = window.location.href;
+    const currentUrl = `${window.location.origin}${pathname}`;
     navigator.clipboard
       .writeText(currentUrl)
       .then(() => {
@@ -29,8 +31,8 @@ function Footer() {
             믿고사 (MITGOSA) | 본 사이트는 상업적 목적이 아닌 학습을 위해
             제작되었습니다.
           </p>
-          <p>전화: 010-6207-0840 | 이메일: newsungjae0407@gmail.com</p>
-          <p>© 2025 Kim Sungjae. All rights reserved.</p>
+          <p>전화: 010-6207-0840 | 이메일: sungjaekim.dev@gmail.com</p>
+          <p>© {new Date().getFullYear()} Kim Sungjae. All rights reserved.</p>
         </div>
 
         <div className={styles.quickLinks}>
