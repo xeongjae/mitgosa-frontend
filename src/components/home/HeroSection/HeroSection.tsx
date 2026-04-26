@@ -6,6 +6,10 @@ import Image from "next/image";
 
 import styles from "./HeroSection.module.scss";
 import { useFormLoading } from "@/hooks/useFormLoading";
+import {
+  useAnalysisResultStore,
+  type AnalysisResultPayload,
+} from "@/stores/analysisResultStore";
 
 import desktopLogo from "@/images/static/mainlogo.png";
 import mobileLogo from "@/images/static/mobilemain.png";
@@ -94,7 +98,9 @@ export default function HeroSection() {
       const data = await response.json();
 
       if (response.ok) {
-        sessionStorage.setItem("analysisData", JSON.stringify(data));
+        useAnalysisResultStore
+          .getState()
+          .setResult(data as AnalysisResultPayload);
         formLoading.finishSuccess(() => router.push("/result"));
       } else {
         hasError = true;

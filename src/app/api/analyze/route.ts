@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 
-const BASE_URL = process.env.BASE_URL;
+/** 서버 전용. Vercel 등에서는 환경변수 `BASE_URL`에 배포된 백엔드 베이스 URL 설정. */
+function getBackendBaseUrl(): string {
+  const raw = process.env.BASE_URL ?? "http://localhost:8000";
+  return raw.replace(/\/+$/, "");
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const response = await fetch(`${BASE_URL}/api/analyze`, {
+    const baseUrl = getBackendBaseUrl();
+    const response = await fetch(`${baseUrl}/api/analyze`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

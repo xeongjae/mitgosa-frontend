@@ -4,6 +4,8 @@
 
 **믿고사**: 상품 URL을 입력하면 AI가 리뷰를 분석하는 웹앱. 프론트는 Next.js(App Router)이며, 분석 API는 Next Route Handler가 백엔드로 프록시한다.
 
+**로컬 구성**: 백엔드(`mitgosa-backend`, Nest)는 이 프로젝트와 **형제 폴더**로 두는 것을 권장한다(서로 별도 Git 저장소). 예: `.../믿고사-2.0/mitgosa-frontend`, `.../믿고사-2.0/mitgosa-backend`.
+
 ## 스택·버전
 
 | 항목 | 값 |
@@ -31,9 +33,11 @@ src/
     page.module.scss
     globals.scss
     result/
-      page.tsx          # 분석 결과 (클라이언트, sessionStorage 의존)
+      page.tsx          # 분석 결과 (클라이언트, Zustand persist + sessionStorage)
       result.module.scss
     api/analyze/route.ts  # POST → 백엔드 `/api/analyze` 프록시
+  stores/
+    analysisResultStore.ts  # 분석 결과 전역 + persist(sessionStorage)
   components/
     common/             # Header, Footer
     home/               # HeroSection, HowToUse, Showcase
@@ -61,10 +65,10 @@ src/
 
 1. **분석 요청**: 클라이언트가 `POST /api/analyze`, JSON body `{ url: string }` (예: `HeroSection.tsx`).
 2. **프록시**: `src/app/api/analyze/route.ts`가 `process.env.BASE_URL`(없으면 `http://localhost:8000`)의 `POST /api/analyze`로 동일 body를 전달하고, 백엔드 status·JSON을 그대로 반환한다.
-3. **결과 화면**: 성공 시 응답 JSON을 `sessionStorage.setItem("analysisData", …)` 후 `router.push("/result")`.
-4. **`/result`**: `sessionStorage.getItem("analysisData")`로 초기 state를 채우고, 없으면 `router.replace("/")`. 백엔드 응답 스키마는 `AnalysisResultData`(`success`, `error`, `data`, `product` 등)와 일치해야 한다.
+3. **결과 화면**: 성공 시 `useAnalysisResultStore.getState().setResult(…)` 후 `router.push("/result")`. persist가 `sessionStorage`에 동기화.
+4. **`/result`**: `useAnalysisResultStore`에서 `result` 구독. `persist` 재수화(`hasHydrated` / `onFinishHydration`) 후에도 없으면 `router.replace("/")`. 백엔드 응답은 `AnalysisResultPayload`(`AnalysisResultData` + `platform` 등)와 맞춘다.
 
-에이전트가 API 계약을 바꿀 때는 **Route Handler**, **HeroSection 제출 로직**, **`AnalysisResult` 타입**을 함께 점검한다.
+에이전트가 API 계약을 바꿀 때는 **Route Handler**, **HeroSection·ResultSearchBar 제출**, **`stores/analysisResultStore`**, **`AnalysisResult` 타입**을 함께 점검한다.
 
 ---
 

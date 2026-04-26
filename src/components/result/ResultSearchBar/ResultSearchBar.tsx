@@ -3,6 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./ResultSearchBar.module.scss";
+import {
+  useAnalysisResultStore,
+  type AnalysisResultPayload,
+} from "@/stores/analysisResultStore";
 
 const platforms = [
   { value: "musinsa", label: "무신사", supported: true },
@@ -99,16 +103,19 @@ export default function ResultSearchBar() {
         loadingCleanupRef.current?.();
         loadingCleanupRef.current = null;
 
+        if (typeof data === "object" && data !== null) {
+          useAnalysisResultStore
+            .getState()
+            .setResult(data as AnalysisResultPayload);
+        }
         if (form) {
           form.style.setProperty("--loadingProgress", "100%");
           setTimeout(() => {
             form.classList.remove(styles.loading);
             form.style.removeProperty("--loadingProgress");
-            sessionStorage.setItem("analysisData", JSON.stringify(data));
             router.push("/result");
           }, 600);
         } else {
-          sessionStorage.setItem("analysisData", JSON.stringify(data));
           router.push("/result");
         }
       }

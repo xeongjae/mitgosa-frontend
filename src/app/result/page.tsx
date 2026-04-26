@@ -1,32 +1,36 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import AnalysisResult, { AnalysisResultData } from "@/components/result/AnalysisResult/AnalysisResult";
+import AnalysisResult from "@/components/result/AnalysisResult/AnalysisResult";
 import ResultSearchBar from "@/components/result/ResultSearchBar/ResultSearchBar";
+import { useAnalysisResultStore } from "@/stores/analysisResultStore";
 import styles from "./result.module.scss";
 
 export default function ResultPage() {
   const router = useRouter();
-
-  const [result] = useState<AnalysisResultData | null>(() => {
-    if (typeof window === "undefined") return null;
-    const raw = sessionStorage.getItem("analysisData");
-    if (!raw) return null;
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return null;
-    }
-  });
+  const result = useAnalysisResultStore((s) => s.result);
+  const [hasHydrated, setHasHydrated] = useState(() =>
+    useAnalysisResultStore.persist.hasHydrated(),
+  );
 
   useEffect(() => {
-    if (!result) {
+    const unsub = useAnalysisResultStore.persist.onFinishHydration(() => {
+      setHasHydrated(true);
+    });
+    if (useAnalysisResultStore.persist.hasHydrated()) {
+      setHasHydrated(true);
+    }
+    return unsub;
+  }, []);
+
+  useEffect(() => {
+    if (hasHydrated && !result) {
       router.replace("/");
     }
-  }, [result, router]);
+  }, [hasHydrated, result, router]);
 
-  if (!result) {
+  if (!hasHydrated || !result) {
     return (
       <div className={styles.summaryContainer}>
         <div className={styles.loadingContainer}>
