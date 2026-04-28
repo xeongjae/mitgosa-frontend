@@ -1,0 +1,120 @@
+@use "../../../styles/breakpoints" as *;
+
+.section {
+  width: 1040px;
+  margin-bottom: 80px;
+
+  @include mobile {
+    display: none;
+  }
+}
+
+.skeletonTrack {
+  display: flex;
+  gap: 1px;
+  overflow: hidden;
+}
+
+.skeletonCard {
+  flex-shrink: 0;
+  width: 147px;
+  aspect-ratio: 1 / 1.2;
+  background-color: #31313c;
+}
+
+.error {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(244, 67, 54, 0.12);
+  color: rgba(244, 67, 54, 0.95);
+  font-size: 13px;
+}
+
+.empty {
+  padding: 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 13px;
+}
+
+.viewport {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.track {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 1px; // CARD_GAP 동기화
+  width: max-content;
+  will-change: transform;
+  animation: trackSlide var(--dur, 30s) linear infinite;
+}
+
+.track:hover,
+.track:focus-within {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation-play-state: paused;
+  }
+}
+
+/*
+  translateX(-50% - 0.5px):
+  - 아이템 2배 렌더링 시, -50%는 "한 세트 너비 + gap/2"만큼 이동해서 gap/2 오차 발생
+  - gap=1px → -0.5px(= -gap/2) 보정으로 루프가 끊기지 않게 정렬
+*/
+@keyframes trackSlide {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 0.5px));
+  }
+}
+
+.reverse {
+  animation-direction: reverse;
+}
+
+// CARD_WIDTH 동기화
+.card {
+  flex-shrink: 0;
+  width: 147px;
+}
+
+.cardButton {
+  width: 100%;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: block;
+}
+
+.cardButton:hover .thumbImg {
+  opacity: 0.8;
+}
+
+.thumbWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.2;
+}
+
+.thumbImg {
+  object-fit: cover;
+  transition: opacity 0.15s ease;
+  opacity: 0.6;
+}

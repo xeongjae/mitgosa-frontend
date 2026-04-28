@@ -44,7 +44,7 @@ const HOW_TO_USE_STEPS: Step[] = [
 export default function HowToUse() {
   return (
     <section className={styles.section}>
-      <h2 className={styles.title}>사용법</h2>
+      <h2 className={styles.title}>MITGOSA 사용법</h2>
       <div className={styles.steps}>
         {HOW_TO_USE_STEPS.map((step) => (
           <div key={step.number} className={styles.step}>

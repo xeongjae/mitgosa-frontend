@@ -10,9 +10,7 @@ import styles from "./result.module.scss";
 export default function ResultPage() {
   const router = useRouter();
   const result = useAnalysisResultStore((s) => s.result);
-  const [hasHydrated, setHasHydrated] = useState(() =>
-    useAnalysisResultStore.persist.hasHydrated(),
-  );
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
     const unsub = useAnalysisResultStore.persist.onFinishHydration(() => {
