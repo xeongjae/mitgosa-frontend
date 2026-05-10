@@ -6,6 +6,7 @@ import "./globals.scss";
 
 import Header from "@/components/common/Header/Header";
 import Footer from "@/components/common/Footer/Footer";
+import AuthProvider from "@/providers/AuthProvider";
 
 const pretendard = localFont({
   src: "../../public/fonts/PretendardVariable.woff2",
@@ -32,9 +33,11 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${pretendard.variable} ${inter.variable}`}>
       <body>
-        <Header />
-        {children}
-        <Footer />
+        <AuthProvider>
+          <Header />
+          {children}
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
